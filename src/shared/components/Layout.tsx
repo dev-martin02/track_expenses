@@ -22,7 +22,7 @@ export const Layout = () => {
               return []; // Return empty array if categories fail
             });
 
-          const transactionsResult = await fetchTransactions()
+          const transactionsResult = await fetchTransactions(1, 5)
             .then(data => {
               return data;
             })

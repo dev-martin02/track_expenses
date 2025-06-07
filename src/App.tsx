@@ -10,6 +10,7 @@ import { Performance } from "./features/performance/Performance";
 import { Settings } from "./features/settings/Settings";
 import NotFound from "./features/notFound/NotFound";
 import { Login } from "./features/auth/pages/Login";
+import { Register } from "./features/auth/pages/Register";
 import { Layout } from "./shared/components/Layout";
 import { ProtectedRoute } from "./shared/components/ProtectedRoute"
 
@@ -31,6 +32,7 @@ const App = () => (
         <Routes>
           {/* Public routes */}
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           
           {/* Protected routes */}
           <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>

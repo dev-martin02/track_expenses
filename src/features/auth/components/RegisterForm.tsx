@@ -14,50 +14,49 @@ import {
 import { Input } from "@/shared/components/ui/input"
 import { useToast } from "@/shared/components/ui/use-toast"
 import { useNavigate, Link } from "react-router-dom"
-import { login } from "../api/api"
+import { register } from "../api/api"
 import { applicationStore } from "@/shared/Store"
 
 // Form Validation  
-const loginSchema = z.object({
+const registerSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 })
 
-type LoginFormValues = {
+type RegisterFormValues = {
+  username: string;
   email: string;
   password: string;
 }
 
-export function LoginForm() {
+export function RegisterForm() {
   const { setUser } = applicationStore()
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
   const navigate = useNavigate()
   
-  
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
+      username: "",
       email: "",
       password: "",
     },
   })
 
-  async function onSubmit(data: LoginFormValues) {
+  async function onSubmit(data: RegisterFormValues) {
     setIsLoading(true)
     try {
-      const response = await login(data)   
+      const response = await register(data)   
       const result = await response.json()  
-      console.log('Login response:', result)
 
       if (!result.success) {
-        throw new Error(result.message || "Login failed")
+        throw new Error(result.message || "Registration failed")
       }
 
-      console.log('Response headers:', response.headers);
       // Handle cookies
       const cookies = document.cookie.split(";");
-      console.log(cookies)
       const sessionCookie = cookies.find((cookie) =>
         cookie.trim().startsWith("connect.sid=")
       );
@@ -67,19 +66,18 @@ export function LoginForm() {
       }
 
       setUser(result.user)
-      // Navigate after successful login
       navigate("/dashboard")
 
       toast({
         title: "Success",
-        description: "You have been logged in successfully.",
+        description: "Your account has been created successfully.",
       })
     } catch (error) {
-      console.log(error.message)
+      console.error(error)
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Something went wrong. Please try again.",
+        description: error.message || "Something went wrong. Please try again.",
       })
     } finally {
       setIsLoading(false)
@@ -89,11 +87,29 @@ export function LoginForm() {
   return (
     <div className="mx-auto max-w-[350px] space-y-6">
       <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-bold">Login</h1>
-        <p className="text-gray-500">Enter your credentials to access your account</p>
+        <h1 className="text-2xl font-bold">Create an Account</h1>
+        <p className="text-gray-500">Enter your details to create your account</p>
       </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="username"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Username</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="johndoe"
+                    type="text"
+                    disabled={isLoading}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="email"
@@ -131,12 +147,12 @@ export function LoginForm() {
             )}
           />
           <Button className="w-full" type="submit" disabled={isLoading}>
-            {isLoading ? "Signing in..." : "Sign in"}
+            {isLoading ? "Creating account..." : "Create account"}
           </Button>
           <div className="text-center text-sm">
-            Don't have an account?{" "}
-            <Link to="/register" className="text-primary hover:underline">
-              Create one
+            Already have an account?{" "}
+            <Link to="/login" className="text-primary hover:underline">
+              Sign in
             </Link>
           </div>
         </form>
