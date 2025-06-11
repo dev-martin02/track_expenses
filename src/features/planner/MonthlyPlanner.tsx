@@ -4,9 +4,12 @@ import { Button } from "@/shared/components/ui/button";
 import { Calendar } from "./components/Calendar";
 import { BudgetCard } from "./components/BudgetCard";
 import { ExpensesCard } from "./components/ExpensesCard";
+import { CreateBudgetCategoryForm } from "@/features/budget";
 
 export const MonthlyPlanner = () => {
   const [selectedDate, setSelectedDate] = useState<number | null>(null);
+  const [showForm, setShowForm] = useState("");
+  const [newCategory, setNewCategory] = useState<string>("");
 
   const budgetCategories = [
     {
@@ -66,35 +69,68 @@ export const MonthlyPlanner = () => {
     ? plannedExpenses.filter((expense) => expense.date === selectedDate)
     : [];
 
+  const handleCreateCategory = (newCategory: any) => {
+    // Add your logic to save the category
+    console.log("New category:", newCategory);
+    setNewCategory(newCategory.name);
+    setShowForm("");
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Monthly Planner</h1>
-        <Button className="bg-finance-blue hover:bg-finance-blue-accent">
-          Add Planned Expense
-        </Button>
-      </div>
+    <>
+      <div
+        className={`space-y-6 ${
+          showForm ? "blur-sm" : ""
+        } transition-all duration-200`}
+      >
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900">Monthly Planner</h1>
+          <div className="flex gap-2 justify-end">
+            <Button
+              className="bg-finance-blue-accent hover:bg-finance-blue"
+              onClick={() => setShowForm("expense")}
+            >
+              Add Planned Expense
+            </Button>
+            <Button
+              className="bg-finance-blue-accent hover:bg-finance-blue"
+              onClick={() => setShowForm("budget")}
+            >
+              Add Budget Category
+            </Button>
+          </div>
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Calendar
-          selectedDate={selectedDate}
-          hasPlannedExpense={hasPlannedExpense}
-          setSelectedDate={setSelectedDate}
-        />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Calendar
+            selectedDate={selectedDate}
+            hasPlannedExpense={hasPlannedExpense}
+            setSelectedDate={setSelectedDate}
+          />
 
-        {/* Budget Categories */}
-        <div className="space-y-4">
-          <BudgetCard budgetCategories={budgetCategories} />
+          {/* Budget Categories */}
+          <div className="space-y-4">
+            <BudgetCard budgetCategories={budgetCategories} />
 
-          {/* Selected Date Expenses */}
-          {selectedDate && (
-            <ExpensesCard
-              selectedDate={selectedDate}
-              selectedExpenses={selectedExpenses}
-            />
-          )}
+            {/* Selected Date Expenses */}
+            {selectedDate && (
+              <ExpensesCard
+                selectedDate={selectedDate}
+                selectedExpenses={selectedExpenses}
+              />
+            )}
+          </div>
         </div>
       </div>
-    </div>
+
+      {showForm === "budget" && (
+        <div className="fixed inset-0 z-50">
+          <CreateBudgetCategoryForm
+            onSubmit={handleCreateCategory}
+            onCancel={() => setShowForm("")}
+          />
+        </div>
+      )}
+    </>
   );
 };
