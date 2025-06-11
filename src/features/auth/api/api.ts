@@ -20,7 +20,7 @@ export const login = async ({
 };
 
 export const checkAuth = async () => {
-  const response = await fetch(`${backendUrl}me`, {
+  const response = await fetch(`${backendUrl}refresh`, {
     method: "GET",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
