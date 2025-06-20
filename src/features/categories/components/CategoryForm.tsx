@@ -1,8 +1,8 @@
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Button } from "@/shared/components/ui/button"
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Button } from "@/shared/components/ui/button";
 import {
   Form,
   FormControl,
@@ -10,18 +10,18 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/shared/components/ui/form"
-import { Input } from "@/shared/components/ui/input"
+} from "@/shared/components/ui/form";
+import { Input } from "@/shared/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/shared/components/ui/select"
-import { useToast } from "@/shared/components/ui/use-toast"
-import type { Category } from "@/shared/type"
-import { Textarea } from "@/shared/components/ui/textarea"
+} from "@/shared/components/ui/select";
+import { useToast } from "@/shared/components/ui/use-toast";
+import { Textarea } from "@/shared/components/ui/textarea";
+import { createCategory } from "../api/api";
 
 const categorySchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -29,11 +29,84 @@ const categorySchema = z.object({
   icon: z.string().min(1, "Please select an icon"),
   color: z.string().min(1, "Please select a color"),
   description: z.string().min(5, "Description must be at least 5 characters"),
-})
+});
 
-type CategoryFormValues = z.infer<typeof categorySchema>
+type CategoryFormValues = z.infer<typeof categorySchema>;
 
-const icons = ["💰", "🏠", "🍔", "🚗", "🎮", "📱", "👕", "💊", "🎓", "✈️",  "🎉", "🎁", "🎈", "🎂", "🎃", "🎄", "🎆", "🎇", "🎈", "🎉", "🎊", "🎋", "🎌", "🎍", "🎎", "🎏", "🎐", "🎑", "🎒", "🎓", "🎔", "🎕", "🎖", "🎗", "🎘", "🎙", "🎚", "🎛", "🎜", "🎝", "🎞", "🎟", "🎠", "🎡", "🎢", "🎣", "🎤", "🎥", "🎦", "🎧", "🎨", "🎩", "🎪", "🎫", "🎬", "🎭", "🎮", "🎯", "🎰", "🎱", "🎲", "🎳", "🎴", "🎵", "🎶", "🎷", "🎸", "🎹", "🎺", "🎻", "🎼", "🎽"]
+const icons = [
+  "💰",
+  "🏠",
+  "🍔",
+  "🚗",
+  "🎮",
+  "📱",
+  "👕",
+  "💊",
+  "🎓",
+  "✈️",
+  "🎉",
+  "🎁",
+  "🎈",
+  "🎂",
+  "🎃",
+  "🎄",
+  "🎆",
+  "🎇",
+  "🎈",
+  "🎉",
+  "🎊",
+  "🎋",
+  "🎌",
+  "🎍",
+  "🎎",
+  "🎏",
+  "🎐",
+  "🎑",
+  "🎒",
+  "🎓",
+  "🎔",
+  "🎕",
+  "🎖",
+  "🎗",
+  "🎘",
+  "🎙",
+  "🎚",
+  "🎛",
+  "🎜",
+  "🎝",
+  "🎞",
+  "🎟",
+  "🎠",
+  "🎡",
+  "🎢",
+  "🎣",
+  "🎤",
+  "🎥",
+  "🎦",
+  "🎧",
+  "🎨",
+  "🎩",
+  "🎪",
+  "🎫",
+  "🎬",
+  "🎭",
+  "🎮",
+  "🎯",
+  "🎰",
+  "🎱",
+  "🎲",
+  "🎳",
+  "🎴",
+  "🎵",
+  "🎶",
+  "🎷",
+  "🎸",
+  "🎹",
+  "🎺",
+  "🎻",
+  "🎼",
+  "🎽",
+];
 const colors = [
   { name: "Blue", value: "#3B82F6" },
   { name: "Red", value: "#EF4444" },
@@ -48,12 +121,12 @@ const colors = [
   { name: "light purple", value: "#f3e8ff" },
   { name: "light pink", value: "#f9e6f5" },
   { name: "light indigo", value: "#e6e6fa" },
-  { name: "light gray", value: "#f0f0f0" }
-]
+  { name: "light gray", value: "#f0f0f0" },
+];
 
 export function CategoryForm({ onClose }: { onClose: () => void }) {
-  const [isLoading, setIsLoading] = useState(false)
-  const { toast } = useToast()
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categorySchema),
@@ -64,27 +137,33 @@ export function CategoryForm({ onClose }: { onClose: () => void }) {
       color: colors[0].value,
       description: "",
     },
-  })
+  });
 
-  const formData = form.watch()
+  const formData = form.watch();
 
   async function onSubmit(data: CategoryFormValues) {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      // TODO: Implement your category creation/update logic here
-      console.log(data)
+      const response = await createCategory({
+        name: data.name,
+        type: data.type,
+        icon: data.icon || "📊", // Ensure icon is always defined
+        color: data.color,
+        description: data.description,
+      });
+      console.log(response);
       toast({
         title: "Success",
         description: "Category has been saved successfully.",
-      })
+      });
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
         description: "Something went wrong. Please try again.",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -138,7 +217,10 @@ export function CategoryForm({ onClose }: { onClose: () => void }) {
 
           <div className="p-6">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-5"
+              >
                 {/* Top fields in 2-column grid */}
                 <div className="grid grid-cols-2 gap-4">
                   {/* Icon */}
@@ -301,5 +383,5 @@ export function CategoryForm({ onClose }: { onClose: () => void }) {
         </div>
       </div>
     </div>
-  )
-} 
+  );
+}
