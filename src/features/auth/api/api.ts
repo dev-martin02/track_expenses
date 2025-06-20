@@ -38,7 +38,7 @@ export const register = async ({
   email: string;
   password: string;
 }) => {
-  const response = await fetch(`${backendUrl}register`, {
+  const response = await fetch(`${backendUrl}users/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

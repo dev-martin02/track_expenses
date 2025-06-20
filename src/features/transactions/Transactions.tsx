@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
 import { applicationStore } from "@/shared/Store";
 import { formatDate } from "@/shared/utils/utils";
 import { TransactionForm } from "./components/TransactionForm";
 import { Pagination } from "./components/Pagination";
-import { fetchTransactions } from "./api/api";
+import { fetchTransactions, filterTransactions } from "./api/api";
+import { UploaderForm } from "./components/Uploader";
 
 export const Transactions = () => {
   const [selectedFilter, setSelectedFilter] = useState<string | number>("");
@@ -17,12 +18,8 @@ export const Transactions = () => {
     setTransactionsPagination,
     setTransactions,
   } = applicationStore();
-  const [displayForm, setDisplayForm] = useState<string>("");
 
-  const filteredTransactions =
-    selectedFilter === ""
-      ? Transactions
-      : Transactions.filter((t) => t.category_id === selectedFilter);
+  const [displayForm, setDisplayForm] = useState<string>("");
 
   const handlePageChange = async (newPage: number) => {
     const response = await fetchTransactions(
@@ -33,9 +30,11 @@ export const Transactions = () => {
     setTransactionsPagination(response.pagination);
   };
 
-  function findCategory(id: number) {
-    return Categories.find((c) => c.id === id);
-  }
+  const handleFilter = async (categoryId: number | string) => {
+    const response = await filterTransactions(categoryId);
+    setTransactions(response);
+    setSelectedFilter(categoryId);
+  };
 
   return (
     <>
@@ -53,12 +52,20 @@ export const Transactions = () => {
               Track and manage your financial activities
             </p>
           </div>
-          <Button
-            className="bg-finance-blue-accent hover:bg-finance-blue-accent/90 text-white rounded-xl px-6"
-            onClick={() => setDisplayForm("transaction")}
-          >
-            Add Transaction
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              className="bg-finance-blue-accent hover:bg-finance-blue-accent/90 text-white rounded-xl px-6"
+              onClick={() => setDisplayForm("transaction")}
+            >
+              Add Transaction
+            </Button>
+            <Button
+              className="bg-finance-blue-accent hover:bg-finance-blue-accent/90 text-white rounded-xl px-6"
+              onClick={() => setDisplayForm("upload")}
+            >
+              Upload PDF
+            </Button>
+          </div>
         </div>
 
         {/* Summary Cards */}
@@ -106,7 +113,7 @@ export const Transactions = () => {
             {Categories.map((filter) => (
               <button
                 key={filter.id}
-                onClick={() => setSelectedFilter(filter.id)}
+                onClick={() => handleFilter(filter.id)}
                 className={`px-4 py-2 rounded-xl whitespace-nowrap text-white transition-colors flex items-center gap-2 ${
                   selectedFilter === filter.id
                     ? "ring-4 ring-finance-blue-accent"
@@ -189,6 +196,11 @@ export const Transactions = () => {
       {displayForm === "transaction" && (
         <div className="fixed inset-0 z-50">
           <TransactionForm onClose={() => setDisplayForm("")} />
+        </div>
+      )}
+      {displayForm === "upload" && (
+        <div className="fixed inset-0 z-50">
+          <UploaderForm />
         </div>
       )}
     </>

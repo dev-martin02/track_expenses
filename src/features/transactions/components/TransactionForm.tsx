@@ -1,8 +1,8 @@
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Button } from "@/shared/components/ui/button"
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Button } from "@/shared/components/ui/button";
 import {
   Form,
   FormControl,
@@ -10,20 +10,20 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/shared/components/ui/form"
-import { Input } from "@/shared/components/ui/input"
+} from "@/shared/components/ui/form";
+import { Input } from "@/shared/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/shared/components/ui/select"
-import { useToast } from "@/shared/components/ui/use-toast"
-import { Textarea } from "@/shared/components/ui/textarea"
-import { applicationStore } from "@/shared/Store"
-import { createTransaction } from "../api/api"
-import { TransactionFormData } from "../types"
+} from "@/shared/components/ui/select";
+import { useToast } from "@/shared/components/ui/use-toast";
+import { Textarea } from "@/shared/components/ui/textarea";
+import { applicationStore } from "@/shared/Store";
+import { createTransaction } from "../api/api";
+import { TransactionFormData } from "../types";
 
 const transactionSchema = z.object({
   amount: z.string().min(1, "Amount is required"),
@@ -34,51 +34,51 @@ const transactionSchema = z.object({
   category_id: z.number().min(1, "Please select a category"),
   transaction_type: z.enum(["expense", "income"]),
   notes: z.string().optional(),
-})
+});
 
-type TransactionFormValues = TransactionFormData
+type TransactionFormValues = TransactionFormData;
 
 interface TransactionFormProps {
   onClose: () => void;
 }
 
 export function TransactionForm({ onClose }: TransactionFormProps) {
-  const [isLoading, setIsLoading] = useState(false)
-  const { toast } = useToast()
-  const { Categories } = applicationStore()
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  const { Categories } = applicationStore();
 
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
       amount: "",
       place: "",
-      transaction_date: new Date().toISOString().split('T')[0],
+      transaction_date: new Date().toISOString().split("T")[0],
       description: "",
       method: "Cash",
       category_id: 0,
       transaction_type: "expense",
     },
-  })
+  });
 
-  const formData = form.watch()
+  const formData = form.watch();
 
   async function onSubmit(data: TransactionFormValues) {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      await createTransaction(data)
+      await createTransaction(data);
       toast({
         title: "Success",
         description: "Transaction has been saved successfully.",
-      })
-      onClose()
+      });
+      onClose();
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
         description: "Something went wrong. Please try again.",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -126,7 +126,10 @@ export function TransactionForm({ onClose }: TransactionFormProps) {
 
           <div className="p-6">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-5"
+              >
                 {/* Top fields in 2-column grid */}
                 <div className="grid grid-cols-2 gap-4">
                   {/* Amount */}
@@ -215,7 +218,9 @@ export function TransactionForm({ onClose }: TransactionFormProps) {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="Credit Card">Credit Card</SelectItem>
+                          <SelectItem value="Credit Card">
+                            Credit Card
+                          </SelectItem>
                           <SelectItem value="Cash">Cash</SelectItem>
                           <SelectItem value="Debit Card">Debit Card</SelectItem>
                         </SelectContent>
@@ -243,8 +248,14 @@ export function TransactionForm({ onClose }: TransactionFormProps) {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {Categories.filter(category => category.type === formData.transaction_type).map((category) => (
-                            <SelectItem key={category.id} value={category.id.toString()}>
+                          {Categories.filter(
+                            (category) =>
+                              category.type === formData.transaction_type
+                          ).map((category) => (
+                            <SelectItem
+                              key={category.id}
+                              value={category.id.toString()}
+                            >
                               <div className="flex items-center gap-2">
                                 <span>{category.icon}</span>
                                 <span>{category.name}</span>
@@ -266,11 +277,7 @@ export function TransactionForm({ onClose }: TransactionFormProps) {
                     <FormItem>
                       <FormLabel>Date</FormLabel>
                       <FormControl>
-                        <Input
-                          type="date"
-                          disabled={isLoading}
-                          {...field}
-                        />
+                        <Input type="date" disabled={isLoading} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -298,27 +305,6 @@ export function TransactionForm({ onClose }: TransactionFormProps) {
                   )}
                 />
 
-                {/* Notes */}
-                {/* <FormField
-                  control={form.control}
-                  name="notes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Notes (Optional)</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Add any additional notes"
-                          className="resize-none"
-                          rows={2}
-                          disabled={isLoading}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                /> */}
-
                 {/* Save Button */}
                 <div className="flex gap-2.5 pt-3">
                   <Button
@@ -342,5 +328,5 @@ export function TransactionForm({ onClose }: TransactionFormProps) {
         </div>
       </div>
     </div>
-  )
-} 
+  );
+}

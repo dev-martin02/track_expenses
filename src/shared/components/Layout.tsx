@@ -1,12 +1,22 @@
-import { Navigation } from './Navigation';
-import { Outlet } from 'react-router-dom';
-import { useEffect } from 'react';
-import { fetchCategories } from '@/features/categories/api/api';
-import { applicationStore } from '../Store';
-import { fetchMothlySummary, fetchTransactions } from '@/features/transactions/api/api';
+import { Navigation } from "./Navigation";
+import { Outlet } from "react-router-dom";
+import { useEffect } from "react";
+import { fetchCategories } from "@/features/categories/api/api";
+import { applicationStore } from "../Store";
+import {
+  fetchMonthlySummary,
+  fetchTransactions,
+} from "@/features/transactions/api/api";
 
 export const Layout = () => {
-  const { Categories, setCategories, user, setTransactions, setMonthlySummary, setTransactionsPagination } = applicationStore();
+  const {
+    Categories,
+    setCategories,
+    user,
+    setTransactions,
+    setMonthlySummary,
+    setTransactionsPagination,
+  } = applicationStore();
 
   // TODO: Catch all the data for the user in one go
   useEffect(() => {
@@ -15,41 +25,41 @@ export const Layout = () => {
         try {
           // Fetch both independently
           const categoriesResult = await fetchCategories()
-            .then(data => {
+            .then((data) => {
               return data;
             })
-            .catch(error => {
+            .catch((error) => {
               return []; // Return empty array if categories fail
             });
 
           const transactionsResult = await fetchTransactions(1, 5)
-            .then(data => {
+            .then((data) => {
               return data;
             })
-            .catch(error => {
+            .catch((error) => {
               return []; // Return empty array if transactions fail
             });
 
-          const monthlySummaryResult = await fetchMothlySummary()
-            .then(data => {
+          const monthlySummaryResult = await fetchMonthlySummary()
+            .then((data) => {
               const dataObject = {
-                month: new Date().toLocaleString('default', { month: 'long' }),
+                month: new Date().toLocaleString("default", { month: "long" }),
                 total_income: data.total_income,
-                total_expense: data.total_expense
+                total_expense: data.total_expense,
               };
               return [dataObject];
             })
-            .catch(error => {
+            .catch((error) => {
               return []; // Return empty array if monthly summary fail
             });
 
-          // Update state with whatever we got 
+          // Update state with whatever we got
           setCategories(categoriesResult);
           setTransactions(transactionsResult.data);
           setTransactionsPagination(transactionsResult.pagination);
           setMonthlySummary(monthlySummaryResult);
         } catch (error) {
-          console.error('Error in fetchData:', error);
+          console.error("Error in fetchData:", error);
         }
       };
 
