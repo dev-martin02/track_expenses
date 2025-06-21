@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -44,8 +44,11 @@ interface TransactionFormProps {
 
 export function TransactionForm({ onClose }: TransactionFormProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [categorySearch, setCategorySearch] = useState("");
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const { toast } = useToast();
   const { Categories } = applicationStore();
+  const categoryDropdownRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
@@ -61,6 +64,49 @@ export function TransactionForm({ onClose }: TransactionFormProps) {
   });
 
   const formData = form.watch();
+
+  // Filter categories based on search input and transaction type
+  const filteredCategories = Categories.filter(
+    (category) =>
+      category.type === formData.transaction_type &&
+      category.name.toLowerCase().includes(categorySearch.toLowerCase())
+  );
+
+  // Get selected category name for display
+  const selectedCategory = Categories.find(
+    (cat) => cat.id === formData.category_id
+  );
+
+  const handleCategorySelect = (categoryId: number) => {
+    form.setValue("category_id", categoryId);
+    const selectedCat = Categories.find((cat) => cat.id === categoryId);
+    setCategorySearch(selectedCat?.name || "");
+    setShowCategoryDropdown(false);
+  };
+
+  // Update category search when form data changes
+  useEffect(() => {
+    if (formData.category_id && selectedCategory) {
+      setCategorySearch(selectedCategory.name);
+    }
+  }, [formData.category_id, selectedCategory]);
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        categoryDropdownRef.current &&
+        !categoryDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowCategoryDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   async function onSubmit(data: TransactionFormValues) {
     setIsLoading(true);
@@ -235,35 +281,43 @@ export function TransactionForm({ onClose }: TransactionFormProps) {
                   control={form.control}
                   name="category_id"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="relative">
                       <FormLabel>Category</FormLabel>
-                      <Select
-                        onValueChange={(value) => field.onChange(Number(value))}
-                        defaultValue={field.value?.toString()}
-                        disabled={isLoading}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="h-12">
-                            <SelectValue placeholder="Select category" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {Categories.filter(
-                            (category) =>
-                              category.type === formData.transaction_type
-                          ).map((category) => (
-                            <SelectItem
-                              key={category.id}
-                              value={category.id.toString()}
-                            >
-                              <div className="flex items-center gap-2">
-                                <span>{category.icon}</span>
-                                <span>{category.name}</span>
+                      <FormControl>
+                        <div className="relative" ref={categoryDropdownRef}>
+                          <Input
+                            placeholder="Type to search categories..."
+                            value={categorySearch}
+                            onChange={(e) => {
+                              setCategorySearch(e.target.value);
+                              setShowCategoryDropdown(true);
+                              if (!e.target.value) {
+                                field.onChange(0);
+                              }
+                            }}
+                            onFocus={() => setShowCategoryDropdown(true)}
+                            disabled={isLoading}
+                            className="h-12"
+                          />
+                          {showCategoryDropdown &&
+                            filteredCategories.length > 0 && (
+                              <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                {filteredCategories.map((category) => (
+                                  <div
+                                    key={category.id}
+                                    className="px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2"
+                                    onClick={() =>
+                                      handleCategorySelect(category.id)
+                                    }
+                                  >
+                                    <span>{category.icon}</span>
+                                    <span>{category.name}</span>
+                                  </div>
+                                ))}
                               </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                            )}
+                        </div>
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

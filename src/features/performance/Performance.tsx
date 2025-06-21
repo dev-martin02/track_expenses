@@ -46,23 +46,20 @@ export const Performance = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const categoriesBreakdown = await fetchCategoriesBreakdown(5, 2025);
+        const categoriesBreakdown = await fetchCategoriesBreakdown(6, 2025);
+        console.log("Categories breakdown:", categoriesBreakdown);
         setCategoriesBreakdown(categoriesBreakdown.expense);
 
-        // const weeklyPerformance = await fetchWeeklyPerformance(5, 2025);
-        // setWeeklySpending(weeklyPerformance);
-
-        console.log("Fetching monthly performance...");
         const monthlyPerformance = await fetchMonthlyPerformance();
-        console.log("Monthly performance response:", monthlyPerformance);
         // Sort the data by month in ascending order (January first)
         const sortedMonthlyPerformance = [...monthlyPerformance].sort(
           (a, b) => new Date(a.month).getTime() - new Date(b.month).getTime()
         );
         setMonthlyPerformance(sortedMonthlyPerformance);
-        console.log("Monthly performance:", monthlyPerformance);
+
+        const weeklyPerformance = await fetchWeeklyPerformance(5, 2025);
+        setWeeklySpending(weeklyPerformance);
       } catch (error) {
-        console.error("Error fetching data:", error);
         if (error instanceof Error) {
           console.error("Error details:", error.message);
         }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Card } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
 import { applicationStore } from "@/shared/Store";
@@ -9,7 +9,6 @@ import { fetchTransactions, filterTransactions } from "./api/api";
 import { UploaderForm } from "./components/Uploader";
 
 export const Transactions = () => {
-  const [selectedFilter, setSelectedFilter] = useState<string | number>("");
   const {
     MonthlySummary,
     Categories,
@@ -20,6 +19,7 @@ export const Transactions = () => {
   } = applicationStore();
 
   const [displayForm, setDisplayForm] = useState<string>("");
+  const [selectedFilter, setSelectedFilter] = useState<string | number>("");
 
   const handlePageChange = async (newPage: number) => {
     const response = await fetchTransactions(
