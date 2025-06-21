@@ -24,11 +24,12 @@ import { MonthTrend } from "./components/MonthTrend";
 import { CategoryChart } from "./components/CategoryChart";
 import { WeeklyChart } from "./components/WeeklyChart";
 import { MonthlySummary } from "./components/MonthlySummary";
+import { applicationStore } from "@/shared/Store";
+
 export const Performance = () => {
   const [weeklySpending, setWeeklySpending] = useState<any[]>([]);
   const [categoriesBreakdown, setCategoriesBreakdown] = useState<any[]>([]);
-  const [monthlyPerformance, setMonthlyPerformance] = useState<any[]>([]);
-
+  const { MonthlyPerformance, setMonthlyPerformance } = applicationStore();
   const monthlyData = [
     { month: "Aug", income: 6500, expenses: 4200, savings: 2300 },
     { month: "Sep", income: 6500, expenses: 3800, savings: 2700 },
@@ -59,6 +60,7 @@ export const Performance = () => {
           (a, b) => new Date(a.month).getTime() - new Date(b.month).getTime()
         );
         setMonthlyPerformance(sortedMonthlyPerformance);
+        console.log("Monthly performance:", monthlyPerformance);
       } catch (error) {
         console.error("Error fetching data:", error);
         if (error instanceof Error) {

@@ -5,7 +5,8 @@ import {
   User,
   MonthlySummary,
   TransactionsPagination,
-} from "./type";
+  MonthlyPerformance,
+} from "./type.ts";
 
 type Store = {
   Transactions: Transaction[];
@@ -22,6 +23,9 @@ type Store = {
 
   MonthlySummary: MonthlySummary[];
   setMonthlySummary: (newMonthlySummary: MonthlySummary[]) => void;
+
+  MonthlyPerformance: MonthlyPerformance[];
+  setMonthlyPerformance: (newMonthlyPerformance: MonthlyPerformance[]) => void;
 };
 
 export const applicationStore = create<Store>((set) => ({
@@ -48,4 +52,8 @@ export const applicationStore = create<Store>((set) => ({
   MonthlySummary: [],
   setMonthlySummary: (newMonthlySummary) =>
     set({ MonthlySummary: newMonthlySummary }),
+
+  MonthlyPerformance: [],
+  setMonthlyPerformance: (newMonthlyPerformance) =>
+    set({ MonthlyPerformance: newMonthlyPerformance }),
 }));

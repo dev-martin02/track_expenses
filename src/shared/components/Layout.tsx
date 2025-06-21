@@ -39,25 +39,10 @@ export const Layout = () => {
             .catch((error) => {
               return []; // Return empty array if transactions fail
             });
-
-          const monthlySummaryResult = await fetchMonthlySummary()
-            .then((data) => {
-              const dataObject = {
-                month: new Date().toLocaleString("default", { month: "long" }),
-                total_income: data.total_income,
-                total_expense: data.total_expense,
-              };
-              return [dataObject];
-            })
-            .catch((error) => {
-              return []; // Return empty array if monthly summary fail
-            });
-
           // Update state with whatever we got
           setCategories(categoriesResult);
           setTransactions(transactionsResult.data);
           setTransactionsPagination(transactionsResult.pagination);
-          setMonthlySummary(monthlySummaryResult);
         } catch (error) {
           console.error("Error in fetchData:", error);
         }
