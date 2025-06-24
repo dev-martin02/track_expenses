@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card } from "@/shared/components/ui/card";
+import { Card, CardContent } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
 import { applicationStore } from "@/shared/Store";
 import { formatDate } from "@/shared/utils/utils";
@@ -7,6 +7,17 @@ import { TransactionForm } from "./components/TransactionForm";
 import { Pagination } from "./components/Pagination";
 import { fetchTransactions, filterTransactions } from "./api/api";
 import { UploaderForm } from "./components/Uploader";
+
+// TODO: Add a loading state
+// TODO: Add a search bar
+// TODO: Add a filter by date
+// TODO: Add a filter by amount
+// TODO: Add a filter by category
+// TODO: Add a filter by place
+// TODO: Add a filter by transaction type
+// TODO: Add a filter by transaction date
+// TODO: Add a double click functionality to exit the form
+// TODO: add the transaction and update the transaction list
 
 export const Transactions = () => {
   const {
@@ -39,11 +50,11 @@ export const Transactions = () => {
   return (
     <>
       <div
-        className={`space-y-8 ${
+        className={`flex flex-col ${
           displayForm ? "blur-sm" : ""
-        } transition-all duration-200`}
+        } transition-all duration-200 h-full min-h-[calc(100vh-8rem)]`}
       >
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Transactions
@@ -70,7 +81,7 @@ export const Transactions = () => {
 
         {/* Summary Cards */}
         {MonthlySummary.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <Card className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -107,9 +118,9 @@ export const Transactions = () => {
         )}
 
         {/* Transactions List */}
-        <Card className="p-6">
+        <div className="p-6 border border-gray-200 rounded-xl flex-1 overflow-hidden flex flex-col">
           {/* Filters */}
-          <div className="flex space-x-2 overflow-x-auto p-2">
+          <div className="flex space-x-2 overflow-x-auto p-2 mb-4">
             {Categories.map((filter) => (
               <button
                 key={filter.id}
@@ -127,7 +138,7 @@ export const Transactions = () => {
             ))}
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 flex-1 overflow-y-auto">
             {Transactions.length > 0 ? (
               Transactions.map((transaction) => (
                 <div
@@ -169,12 +180,12 @@ export const Transactions = () => {
                   <div className="text-right">
                     <span
                       className={`text-lg font-bold ${
-                        Number(transaction.amount) > 0
+                        transaction.transaction_type === "income"
                           ? "text-finance-green-accent"
-                          : "text-red-300"
+                          : "text-red-500"
                       }`}
                     >
-                      {Number(transaction.amount) > 0 ? "+" : ""}$
+                      {transaction.transaction_type === "income" ? "+" : "-"}$
                       {Math.abs(Number(transaction.amount)).toFixed(2)}
                     </span>
                   </div>
@@ -191,7 +202,7 @@ export const Transactions = () => {
               <Pagination onPageChange={handlePageChange} />
             )}
           </div>
-        </Card>
+        </div>
       </div>
       {displayForm === "transaction" && (
         <div className="fixed inset-0 z-50">
