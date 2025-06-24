@@ -22,7 +22,7 @@ import {
 import { useToast } from "@/shared/components/ui/use-toast";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { applicationStore } from "@/shared/Store";
-import { createTransaction } from "../api/api";
+import { createTransaction, fetchTransactions } from "../api/api";
 import { TransactionFormData } from "../types";
 
 const transactionSchema = z.object({
@@ -36,8 +36,6 @@ const transactionSchema = z.object({
   notes: z.string().optional(),
 });
 
-type TransactionFormValues = TransactionFormData;
-
 interface TransactionFormProps {
   onClose: () => void;
 }
@@ -47,10 +45,10 @@ export function TransactionForm({ onClose }: TransactionFormProps) {
   const [categorySearch, setCategorySearch] = useState("");
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const { toast } = useToast();
-  const { Categories } = applicationStore();
+  const { Categories, setTransactions } = applicationStore();
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
 
-  const form = useForm<TransactionFormValues>({
+  const form = useForm<TransactionFormData>({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
       amount: "",
@@ -108,7 +106,7 @@ export function TransactionForm({ onClose }: TransactionFormProps) {
     };
   }, []);
 
-  async function onSubmit(data: TransactionFormValues) {
+  async function onSubmit(data: TransactionFormData) {
     setIsLoading(true);
     try {
       await createTransaction(data);
@@ -116,6 +114,14 @@ export function TransactionForm({ onClose }: TransactionFormProps) {
         title: "Success",
         description: "Transaction has been saved successfully.",
       });
+      const transactionsResult = await fetchTransactions(1, 5)
+        .then((data) => {
+          return data;
+        })
+        .catch((error) => {
+          return []; // Return empty array if transactions fail
+        });
+      setTransactions(transactionsResult.data);
       onClose();
     } catch (error) {
       toast({
